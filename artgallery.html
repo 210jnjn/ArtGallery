@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtGallery - Выставка и оценка рисунков</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-section h2 {
+            margin-bottom: 15px;
+            color: #2575fc;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: #2575fc;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: #1a60d0;
+        }
+
+        .btn-upload {
+            background: #6a11cb;
+            width: 100%;
+        }
+
+        .btn-upload:hover {
+            background: #5509a8;
+        }
+
+        .gallery-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .gallery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .gallery-header h2 {
+            color: #2575fc;
+        }
+
+        .sort-options select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .artworks {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .artwork {
+            background: #f9f9f9;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .artwork:hover {
+            transform: translateY(-5px);
+        }
+
+        .artwork-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 1px solid #eee;
+        }
+
+        .artwork-info {
+            padding: 15px;
+        }
+
+        .artwork-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .artwork-author {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .artwork-description {
+            color: #777;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .rating {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stars {
+            color: #ffc107;
+        }
+
+        .rating-value {
+            font-weight: 600;
+            color: #2575fc;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: white;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ArtGallery</h1>
+            <p class="subtitle">Выставьте свои рисунки и оцените творчество других</p>
+        </header>
+
+        <div class="main-content">
+            <section class="upload-section">
+                <h2>Загрузить рисунок</h2>
+                <form id="upload-form">
+                    <div class="form-group">
+                        <label for="title">Название рисунка</label>
+                        <input type="text" id="title" required placeholder="Введите название">
+                    </div>
+                    <div class="form-group">
+                        <label for="author">Ваше имя</label>
+                        <input type="text" id="author" required placeholder="Введите ваше имя">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Описание</label>
+                        <textarea id="description" placeholder="Расскажите о своем рисунке"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="image">Изображение</label>
+                        <input type="file" id="image" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn btn-upload">Загрузить рисунок</button>
+                </form>
+            </section>
+
+            <section class="gallery-section">
+                <div class="gallery-header">
+                    <h2>Галерея рисунков</h2>
+                    <div class="sort-options">
+                        <select id="sort-by">
+                            <option value="newest">Сначала новые</option>
+                            <option value="rating">По рейтингу</option>
+                            <option value="popular">По популярности</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="artworks" id="artworks-container">
+                    <!-- Artworks will be loaded here -->
+                </div>
+            </section>
+        </div>
+
+        <footer>
+            <p>© 2023 ArtGallery - Платформа для выставки и оценки рисунков</p>
+        </footer>
+    </div>
+
+    <div class="notification" id="notification">Рисунок успешно загружен!</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Загрузка рисунков из localStorage при загрузке страницы
+            loadArtworks();
+            
+            // Обработка формы загрузки
+            document.getElementById('upload-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const title = document.getElementById('title').value;
+                const author = document.getElementById('author').value;
+                const description = document.getElementById('description').value;
+                const imageFile = document.getElementById('image').files[0];
+                
+                if (imageFile) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const artwork = {
+                            id: Date.now(),
+                            title,
+                            author,
+                            description,
+                            image: event.target.result,
+                            rating: 0,
+                            votes: 0,
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        saveArtwork(artwork);
+                        showNotification('Рисунок успешно загружен!');
+                        document.getElementById('upload-form').reset();
+                    };
+                    reader.readAsDataURL(imageFile);
+                }
+            });
+            
+            // Сортировка
+            document.getElementById('sort-by').addEventListener('change', function() {
+                loadArtworks(this.value);
+            });
+        });
+        
+        function saveArtwork(artwork) {
+            let artworks = JSON.parse(localStorage.getItem('artworks')) || [];
+            artworks.push(artwork);
+            localStorage.setItem('artworks', JSON.stringify(artworks));
+            loadArtworks();
+        }
+        
+        function loadArtworks(sortBy = 'newest') {
+            const artworksContainer = document.getElementById('artworks-container');
+            artworksContainer.innerHTML = '';
+            
+            let artworks = JSON.parse(localStorage.getItem('artworks')) || [];
+            
+            // Сортировка
+            if (sortBy === 'newest') {
+                artworks.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            } else if (sortBy === 'rating') {
+                artworks.sort((a, b) => b.rating - a.rating);
+            } else if (sortBy === 'popular') {
+                artworks.sort((a, b) => b.votes - a.votes);
+            }
+            
+            if (artworks.length === 0) {
+                artworksContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; padding: 30px;">Пока нет загруженных рисунков. Будьте первым!</p>';
+                return;
+            }
+            
+            artworks.forEach(artwork => {
+                const artworkElement = document.createElement('div');
+                artworkElement.className = 'artwork';
+                artworkElement.innerHTML = `
+                    <img src="${artwork.image}" alt="${artwork.title}" class="artwork-img">
+                    <div class="artwork-info">
+                        <h3 class="artwork-title">${artwork.title}</h3>
+                        <p class="artwork-author">Автор: ${artwork.author}</p>
+                        <p class="artwork-description">${artwork.description}</p>
+                        <div class="rating">
+                            <div class="stars">
+                                ${getStars(artwork.rating)}
+                            </div>
+                            <div class="rating-value">${artwork.rating > 0 ? artwork.rating.toFixed(1) : 'Нет оценок'}</div>
+                        </div>
+                        <button onclick="rateArtwork(${artwork.id}, 1)" class="btn" style="margin-top: 10px;">Оценить</button>
+                    </div>
+                `;
+                artworksContainer.appendChild(artworkElement);
+            });
+        }
+        
+        function getStars(rating) {
+            const fullStars = Math.floor(rating);
+            const halfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+            
+            let starsHTML = '';
+            
+            for (let i = 0; i < fullStars; i++) {
+                starsHTML += '<i class="fas fa-star"></i>';
+            }
+            
+            if (halfStar) {
+                starsHTML += '<i class="fas fa-star-half-alt"></i>';
+            }
+            
+            for (let i = 0; i < emptyStars; i++) {
+                starsHTML += '<i class="far fa-star"></i>';
+            }
+            
+            return starsHTML;
+        }
+        
+        function rateArtwork(id, rating) {
+            let artworks = JSON.parse(localStorage.getItem('artworks')) || [];
+            const artworkIndex = artworks.findIndex(a => a.id === id);
+            
+            if (artworkIndex !== -1) {
+                // Простая система оценки - усреднение
+                const currentRating = artworks[artworkIndex].rating;
+                const currentVotes = artworks[artworkIndex].votes;
+                
+                // В реальном приложении здесь должна быть более сложная логика
+                const newRating = ((currentRating * currentVotes) + rating) / (currentVotes + 1);
+                
+                artworks[artworkIndex].rating = newRating;
+                artworks[artworkIndex].votes = currentVotes + 1;
+                
+                localStorage.setItem('artworks', JSON.stringify(artworks));
+                
+                // Перезагружаем галерею
+                const currentSort = document.getElementById('sort-by').value;
+                loadArtworks(currentSort);
+                
+                showNotification('Спасибо за вашу оценку!');
+            }
+        }
+        
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Добавляем несколько примеров рисунков при первом посещении
+        window.onload = function() {
+            if (!localStorage.getItem('artworks') || JSON.parse(localStorage.getItem('artworks')).length === 0) {
+                const sampleArtworks = [
+                    {
+                        id: 1,
+                        title: "Горный пейзаж",
+                        author: "Анна Иванова",
+                        description: "Масляная живопись, вдохновленная природой Алтая",
+                        image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
+                        rating: 4.5,
+                        votes: 12,
+                        timestamp: "2023-06-15T10:30:00Z"
+                    },
+                    {
+                        id: 2,
+                        title: "Портрет девушки",
+                        author: "Петр Сергеев",
+                        description: "Уголь на бумаге, эксперимент со светотенью",
+                        image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
+                        rating: 4.2,
+                        votes: 8,
+                        timestamp: "2023-06-18T14:22:00Z"
+                    },
+                    {
+                        id: 3,
+                        title: "Морской закат",
+                        author: "Мария Козлова",
+                        description: "Акварель, написанная на пленэре в Крыму",
+                        image: "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
+                        rating: 4.8,
+                        votes: 15,
+                        timestamp: "2023-06-20T09:15:00Z"
+                    }
+                ];
+                
+                localStorage.setItem('artworks', JSON.stringify(sampleArtworks));
+            }
+        };
+    </script>
+</body>
+</html>
+Безопасный сайт галереи с автоматическим годом
+
+Я улучшил код, добавив безопасность и автоматическое определение текущего года.
+
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtGallery - Выставка и оценка рисунков</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload
